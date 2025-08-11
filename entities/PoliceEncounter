@@ -1,0 +1,41 @@
+{
+  "name": "PoliceEncounter",
+  "type": "object",
+  "properties": {
+    "encounter_type": {
+      "type": "string",
+      "enum": [
+        "traffic_stop",
+        "pedestrian_stop",
+        "home_visit",
+        "arrest",
+        "questioning",
+        "search",
+        "other"
+      ],
+      "description": "Type of police encounter"
+    },
+    "officer_badge_number": {
+      "type": "string",
+      "description": "Badge number of primary officer"
+    },
+    "officer_name": {
+      "type": "string",
+      "description": "Name of officer if known"
+    },
+    "department": {
+      "type": "string",
+      "description": "Police department or agency"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location of encounter"
+    },
+    "date_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time of encounter"
+    },
+    "miranda_read": {
+      "type": "boolean",
+   
