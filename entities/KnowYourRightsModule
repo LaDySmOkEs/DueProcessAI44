@@ -1,0 +1,41 @@
+{
+  "name": "KnowYourRightsModule",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Module title"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "traffic_stops",
+        "home_searches",
+        "arrests",
+        "questioning",
+        "protests",
+        "general_rights"
+      ],
+      "description": "Rights category"
+    },
+    "content": {
+      "type": "string",
+      "description": "Educational content in markdown format"
+    },
+    "key_points": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Key takeaway points"
+    },
+    "do_say": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "What to say in this situation"
+    },
+    "dont_say": {
+      "type": "array",
+   
