@@ -1,0 +1,41 @@
+{
+  "name": "LegalCase",
+  "type": "object",
+  "properties": {
+    "case_name": {
+      "type": "string",
+      "description": "The name or title of the legal case"
+    },
+    "case_number": {
+      "type": "string",
+      "description": "Official case number, if applicable"
+    },
+    "case_type": {
+      "type": "string",
+      "enum": [
+        "civil_rights",
+        "criminal_defense",
+        "family_law",
+        "personal_injury",
+        "other"
+      ],
+      "description": "The area of law the case falls under"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "pending",
+        "closed",
+        "archived"
+      ],
+      "default": "active",
+      "description": "The current status of the case"
+    },
+    "description": {
+      "type": "string",
+      "description": "A brief summary of the case"
+    },
+    "next_deadline": {
+      "type": "string",
+   
