@@ -1,0 +1,41 @@
+{
+  "name": "FOIARequest",
+  "type": "object",
+  "properties": {
+    "agency_name": {
+      "type": "string",
+      "description": "Name of the government agency"
+    },
+    "request_subject": {
+      "type": "string",
+      "description": "Subject/title of the FOIA request"
+    },
+    "request_description": {
+      "type": "string",
+      "description": "Detailed description of records requested"
+    },
+    "date_submitted": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the request was submitted"
+    },
+    "response_deadline": {
+      "type": "string",
+      "format": "date",
+      "description": "Legal deadline for agency response"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "acknowledged",
+        "processing",
+        "fulfilled",
+        "denied",
+        "overdue"
+      ],
+      "default": "submitted",
+      "description": "Current status of the request"
+    },
+    "tracking_number": {
+   
