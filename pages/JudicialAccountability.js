@@ -2,194 +2,133 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Gavel, Search, AlertTriangle, FileText, TrendingUp } from 'lucide-react';
+import { InvokeLLM } from "@/integrations/Core";
+import { Gavel, Search, Loader2, AlertTriangle, ExternalLink, Scale, FileText, Eye } from "lucide-react";
 
-// Mock judicial data
-const mockJudges = [
-  {
-    name: 'Judge Sarah Williams',
-    court: 'Superior Court of Justice',
-    appointedBy: 'Governor Smith (2018)',
-    rulingHistory: 'Generally fair, some controversial decisions',
-    complaintsCount: 3,
-    reversalRate: '12%'
-  },
-  {
-    name: 'Judge Robert Chen',
-    court: 'District Court',
-    appointedBy: 'Elected (2020)',
-    rulingHistory: 'Pro-prosecution bias noted',
-    complaintsCount: 7,
-    reversalRate: '28%'
-  }
-];
+const judicialSearchSchema = {
+    type: "object",
+    properties: {
+        judge_found: {
+            type: "boolean",
+            description: "Whether any disciplinary or accountability information was found for this judge"
+        },
+        summary: {
+            type: "string",
+            description: "Overall summary of the judge's disciplinary record and accountability issues"
+        },
+        disciplinary_actions: {
+            type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    date: { type: "string", description: "Date of disciplinary action" },
+                    issuing_body: { type: "string", description: "Which judicial conduct board or authority issued the discipline" },
+                    violation_type: { type: "string", description: "Type of misconduct (bias, financial conflicts, inappropriate conduct, etc.)" },
+                    penalty: { type: "string", description: "Penalty imposed (censure, suspension, fine, etc.)" },
+                    details: { type: "string", description: "Detailed description of the misconduct" },
+                    case_impact: { type: "string", description: "Whether this affected specific cases or rulings" }
+                }
+            },
+            description: "Official disciplinary actions taken against the judge"
+        },
+        ethics_violations: {
+            type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    violation_category: { type: "string", description: "Category of ethics violation" },
+                    description: { type: "string", description: "Description of the ethics violation" },
+                    resolution: { type: "string", description: "How the violation was resolved" },
+                    ongoing_impact: { type: "string", description: "Whether this impacts current cases" }
+                }
+            },
+            description: "Ethics violations and conflicts of interest"
+        },
+        controversial_rulings: {
+            type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    case_name: { type: "string", description: "Name or identifier of the case" },
+                    date: { type: "string", description: "Date of the ruling" },
+                    controversy: { type: "string", description: "What made this ruling controversial" },
+                    appeals_outcome: { type: "string", description: "Whether the ruling was overturned on appeal" },
+                    legal_criticism: { type: "string", description: "Legal community criticism of the ruling" }
+                }
+            },
+            description: "Controversial rulings that may indicate bias or poor judgment"
+        },
+        financial_disclosures: {
+            type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    disclosure_year: { type: "string" },
+                    potential_conflicts: { type: "string", description: "Potential conflicts of interest from financial holdings" },
+                    recusal_patterns: { type: "string", description: "Pattern of recusals or failure to recuse" }
+                }
+            },
+            description: "Financial disclosure issues and potential conflicts"
+        },
+        bias_indicators: {
+            type: "array",
+            items: {
+                type: "object",
+                properties: {
+                    bias_type: { type: "string", description: "Type of potential bias (racial, political, economic, etc.)" },
+                    evidence: { type: "string", description: "Evidence or allegations of bias" },
+                    impact_on_cases: { type: "string", description: "How this bias may affect case outcomes" }
+                }
+            },
+            description: "Indicators of judicial bias that could affect fair proceedings"
+        },
+        accountability_score: {
+            type: "string",
+            enum: ["Excellent", "Good", "Concerning", "Poor", "Severely Compromised"],
+            description: "Overall assessment of judicial accountability and fitness"
+        }
+    },
+    required: ["judge_found", "summary", "accountability_score"]
+};
 
 export default function JudicialAccountability() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedJudge, setSelectedJudge] = useState(null);
-  const [complaintText, setComplaintText] = useState('');
-  const [complaintType, setComplaintType] = useState('');
+    const [searchData, setSearchData] = useState({
+        judge_name: "",
+        court_name: "",
+        jurisdiction: ""
+    });
+    const [results, setResults] = useState(null);
+    const [isSearching, setIsSearching] = useState(false);
+    const [error, setError] = useState(null);
 
-  const handleSearch = () => {
-    // Simulate search
-    setSelectedJudge(mockJudges[0]);
-  };
+    const handleSearch = async () => {
+        if (!searchData.judge_name && !searchData.court_name) {
+            setError("Please provide either a judge's name or court name to search.");
+            return;
+        }
+        
+        setIsSearching(true);
+        setError(null);
+        setResults(null);
 
-  const handleSubmitComplaint = () => {
-    // Handle complaint submission
-    alert('Complaint submitted for review');
-    setComplaintText('');
-    setComplaintType('');
-  };
+        try {
+            const prompt = `Conduct a comprehensive judicial accountability investigation for: 
+            Judge Name: "${searchData.judge_name}"
+            Court: "${searchData.court_name}" 
+            Jurisdiction: "${searchData.jurisdiction}"
 
-  return (
-    <div className="p-6 space-y-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl flex items-center justify-center">
-              <Gavel className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900">Judicial Accountability Center</h1>
-              <p className="text-slate-600 mt-1">Research judges, track patterns, and hold the judiciary accountable.</p>
-            </div>
-          </div>
-        </div>
+            Search all available public records for:
 
-        <Tabs defaultValue="research" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto grid-cols-3 bg-white border border-slate-200">
-            <TabsTrigger value="research">Judge Research</TabsTrigger>
-            <TabsTrigger value="patterns">Pattern Analysis</TabsTrigger>
-            <TabsTrigger value="complaints">File Complaint</TabsTrigger>
-          </TabsList>
+            1. DISCIPLINARY ACTIONS:
+            - Official reprimands, censures, suspensions
+            - Judicial conduct commission findings
+            - Bar disciplinary actions
+            - Ethics violations and sanctions
 
-          <TabsContent value="research" className="space-y-6">
-            {/* Judge Search */}
-            <Card className="border-0 shadow-lg bg-white">
-              <CardHeader>
-                <CardTitle>Judge Research Database</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-4">
-                  <Input
-                    placeholder="Enter judge name, court, or case number..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  <Button onClick={handleSearch}>
-                    <Search className="w-4 h-4 mr-2" />
-                    Search
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Judge Profile */}
-            {selectedJudge && (
-              <Card className="border-0 shadow-lg bg-white">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    {selectedJudge.name}
-                    <Badge variant="outline">{selectedJudge.court}</Badge>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-semibold mb-2">Background</h4>
-                    <p className="text-sm text-slate-600 mb-2">
-                      <strong>Appointed by:</strong> {selectedJudge.appointedBy}
-                    </p>
-                    <p className="text-sm text-slate-600">
-                      <strong>Court:</strong> {selectedJudge.court}
-                    </p>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-semibold mb-2">Performance Metrics</h4>
-                    <p className="text-sm text-slate-600 mb-2">
-                      <strong>Reversal Rate:</strong> {selectedJudge.reversalRate}
-                    </p>
-                    <p className="text-sm text-slate-600">
-                      <strong>Complaints Filed:</strong> {selectedJudge.complaintsCount}
-                    </p>
-                  </div>
-                  
-                  <div className="md:col-span-2">
-                    <h4 className="font-semibold mb-2">Ruling History Analysis</h4>
-                    <p className="text-sm text-slate-600">{selectedJudge.rulingHistory}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-
-          <TabsContent value="patterns" className="space-y-6">
-            <Card className="border-0 shadow-lg bg-white">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-purple-600" />
-                  Bias Pattern Detection
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <TrendingUp className="w-16 h-16 text-slate-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">Pattern Analysis Coming Soon</h3>
-                  <p className="text-slate-600">AI-powered analysis will identify judicial bias patterns across cases and demographics.</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="complaints" className="space-y-6">
-            <Card className="border-0 shadow-lg bg-white">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-red-600" />
-                  File Judicial Complaint
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Complaint Type</label>
-                  <Select value={complaintType} onValueChange={setComplaintType}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select complaint type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="bias">Judicial Bias</SelectItem>
-                      <SelectItem value="misconduct">Judicial Misconduct</SelectItem>
-                      <SelectItem value="ethics">Ethics Violation</SelectItem>
-                      <SelectItem value="procedure">Procedural Error</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-2">Complaint Details</label>
-                  <Textarea
-                    placeholder="Provide detailed information about the judicial misconduct or bias..."
-                    value={complaintText}
-                    onChange={(e) => setComplaintText(e.target.value)}
-                    rows={6}
-                  />
-                </div>
-                
-                <Button onClick={handleSubmitComplaint} className="w-full">
-                  Submit Complaint
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  );
-}
+            2. CONTROVERSIAL RULINGS:
+            - Rulings overturned for bias or error
+            - Patterns of unusual sentencing
+            - Civil rights violations in rulings
+ 
