@@ -1,0 +1,41 @@
+{
+  "name": "LitigationStrategy",
+  "type": "object",
+  "properties": {
+    "case_id": {
+      "type": "string",
+      "description": "The legal case this strategy belongs to."
+    },
+    "case_theory": {
+      "type": "string",
+      "description": "The central narrative and legal theory of the case."
+    },
+    "elements_to_prove": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "The key legal elements that must be proven to win."
+    },
+    "evidence_plan": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "element": {
+            "type": "string"
+          },
+          "evidence_needed": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "needed",
+              "requested",
+              "obtained"
+            ]
+          }
+        }
+      },
+   
