@@ -1,0 +1,41 @@
+{
+  "name": "ClassActionPotential",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "AI-generated title for the potential class action (e.g., 'Unlawful Search Pattern by Anytown PD')."
+    },
+    "summary": {
+      "type": "string",
+      "description": "AI-generated summary of the systemic issue, identifying the common facts and legal questions."
+    },
+    "target_agency": {
+      "type": "string",
+      "description": "The common government agency identified in the pattern."
+    },
+    "common_violation": {
+      "type": "string",
+      "description": "The recurring constitutional violation at the core of the pattern."
+    },
+    "geographic_scope": {
+      "type": "string",
+      "description": "The city, state, or region where the pattern is observed."
+    },
+    "estimated_class_size": {
+      "type": "integer",
+      "description": "The number of individual violation reports linked to this pattern."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "emerging",
+        "under_review",
+        "active_outreach",
+        "referred_to_counsel"
+      ],
+      "default": "emerging",
+      "description": "The current status of this investigation."
+    },
+    "linked_violation_ids": {
+   
