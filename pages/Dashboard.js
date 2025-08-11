@@ -131,18 +131,4 @@ export default function Dashboard() {
           <div className="lg:col-span-2 space-y-8">
             <RecentIncidents 
               interactions={interactions}
-              isLoading={isLoading}
-            />
-          </div>
-
-          <div className="space-y-8">
-            <RightsProgress 
-              modules={rightsModules}
-              isLoading={isLoading}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+ 
