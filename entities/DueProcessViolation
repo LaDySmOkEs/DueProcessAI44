@@ -1,0 +1,41 @@
+{
+  "name": "DueProcessViolation",
+  "type": "object",
+  "properties": {
+    "violation_type": {
+      "type": "string",
+      "enum": [
+        "unlawful_search",
+        "excessive_force",
+        "false_arrest",
+        "miranda_violation",
+        "malicious_prosecution",
+        "due_process_denial",
+        "other"
+      ],
+      "description": "The primary type of constitutional violation experienced."
+    },
+    "agency_involved": {
+      "type": "string",
+      "description": "The government agency or department responsible (e.g., NYPD, FBI, City of Chicago)."
+    },
+    "location_state": {
+      "type": "string",
+      "description": "The state where the incident occurred."
+    },
+    "location_city": {
+      "type": "string",
+      "description": "The city/town where the incident occurred."
+    },
+    "incident_date": {
+      "type": "string",
+      "format": "date",
+      "description": "The date of the incident."
+    },
+    "incident_description": {
+      "type": "string",
+      "description": "A detailed, factual account of what happened."
+    },
+    "contact_email": {
+      "type": "string",
+   
