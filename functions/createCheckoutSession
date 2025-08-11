@@ -1,0 +1,41 @@
+
+import { createClient } from 'npm:@base44/sdk@0.1.0';
+import Stripe from 'npm:stripe@^14';
+
+const base44 = createClient({ appId: Deno.env.get('BASE44_APP_ID') });
+const stripe = new Stripe(Deno.env.get('Stripe key'));
+
+Deno.serve(async (req) => {
+    try {
+        const { priceId } = await req.json();
+        const authHeader = req.headers.get('Authorization');
+        if (!authHeader) return new Response('Unauthorized', { status: 401 });
+
+        base44.auth.setToken(authHeader.split(' ')[1]);
+        const user = await base44.auth.me();
+        if (!user) return new Response('User not found', { status: 404 });
+
+        let customerId = user.stripe_customer_id;
+        let session;
+
+        // If user doesn't have a valid stripe_customer_id, create one.
+        if (!customerId || !customerId.startsWith('cus_')) {
+            const customer = await stripe.customers.create({
+                email: user.email,
+                name: user.full_name,
+            });
+            customerId = customer.id;
+            await base44.entities.User.update(user.id, { stripe_customer_id: customerId });
+        }
+        
+        try {
+            // First attempt with the existing customer ID
+            session = await stripe.checkout.sessions.create({
+                payment_method_types: ['card'],
+                mode: 'subscription',
+                customer: customerId,
+                line_items: [{
+                    price: priceId,
+                    quantity: 1,
+                }],
+   
