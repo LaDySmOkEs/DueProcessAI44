@@ -1,0 +1,41 @@
+
+import { createClient } from 'npm:@base44/sdk@0.1.0';
+import Stripe from 'npm:stripe@^14';
+
+const base44 = createClient({ appId: Deno.env.get('BASE44_APP_ID') });
+const stripe = new Stripe(Deno.env.get('Stripe key'));
+
+const getTierFromPriceId = (priceId) => {
+    // Maps live Stripe Price IDs to internal subscription tiers.
+    const Tiers = {
+        'price_1Rb9cHGKH727ZIVgLN4Veem7': 'basic',
+        'price_1Rb9dJGKH727ZIVgTxb3MhQV': 'premium'
+    };
+    return Tiers[priceId];
+};
+
+Deno.serve(async (req) => {
+    const signature = req.headers.get('stripe-signature');
+    const body = await req.text();
+
+    try {
+        const event = await stripe.webhooks.constructEvent(
+            body,
+            signature,
+            Deno.env.get('STRIPE_WEBHOOK_SECRET')
+        );
+
+        let subscription;
+        let userId; // userId variable remains here as it's used after the session retrieval
+
+        switch (event.type) {
+            case 'checkout.session.completed':
+                // Retrieve the session with line items expanded to ensure we get the price ID.
+                const session = await stripe.checkout.sessions.retrieve(
+                    event.data.object.id,
+                    { expand: ["line_items"] }
+                );
+                
+                userId = session.metadata.base44_user_id;
+                const priceId = session.line_items?.data[0]?.price?.id;
+   
