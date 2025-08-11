@@ -1,0 +1,41 @@
+{
+  "name": "LegalDocument",
+  "type": "object",
+  "properties": {
+    "document_name": {
+      "type": "string",
+      "description": "The name of the document"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "police_report",
+        "motion",
+        "affidavit",
+        "discovery",
+        "evidence",
+        "other"
+      ],
+      "description": "The type of legal document"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL of the uploaded document file"
+    },
+    "case_id": {
+      "type": "string",
+      "description": "The ID of the case this document belongs to"
+    },
+    "ai_summary": {
+      "type": "string",
+      "description": "AI-generated summary of the document"
+    },
+    "ai_analysis": {
+      "type": "object",
+      "properties": {
+        "key_entities": {
+          "type": "object",
+          "properties": {
+            "people": {
+              "type": "array",
+   
