@@ -1,0 +1,41 @@
+{
+  "name": "ComplaintTracker",
+  "type": "object",
+  "properties": {
+    "complaint_title": {
+      "type": "string",
+      "description": "Brief title/summary of the complaint"
+    },
+    "complaint_type": {
+      "type": "string",
+      "enum": [
+        "internal_affairs",
+        "civilian_review_board",
+        "federal_civil_rights",
+        "ethics_violation",
+        "whistleblower_report",
+        "ombudsman",
+        "other"
+      ],
+      "description": "Type of complaint filed"
+    },
+    "target_agency": {
+      "type": "string",
+      "description": "Agency or department the complaint is against"
+    },
+    "target_individuals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Names of specific individuals complained about"
+    },
+    "date_filed": {
+      "type": "string",
+      "format": "date",
+      "description": "Date the complaint was officially filed"
+    },
+    "filing_method": {
+      "type": "string",
+      "enum": [
+   
