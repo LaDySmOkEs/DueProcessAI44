@@ -1,0 +1,41 @@
+{
+  "name": "DocumentCollection",
+  "type": "object",
+  "properties": {
+    "collection_name": {
+      "type": "string",
+      "description": "Name for this collection of related documents"
+    },
+    "case_id": {
+      "type": "string",
+      "description": "The ID of the LegalCase this collection belongs to."
+    },
+    "collection_type": {
+      "type": "string",
+      "enum": [
+        "malicious_prosecution",
+        "police_incident",
+        "civil_rights_case",
+        "criminal_defense",
+        "other"
+      ],
+      "description": "Type of legal matter this collection relates to"
+    },
+    "incident_id": {
+      "type": "string",
+      "description": "ID of related PoliceInteraction if applicable"
+    },
+    "case_number": {
+      "type": "string",
+      "description": "Official case number if known"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of what this collection contains"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+   
