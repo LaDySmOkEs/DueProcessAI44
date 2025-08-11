@@ -1,206 +1,134 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Scale, FileText, AlertTriangle, CheckCircle, Shield } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { createPageUrl } from "@/utils";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { FileWarning, BookOpen, Landmark, MessageSquare, Scale, Shield } from "lucide-react";
 
 export default function CourtAccessCenter() {
-  const [filingType, setFilingType] = useState('');
-  const [rejectionReason, setRejectionReason] = useState('');
-  const [appealText, setAppealText] = useState('');
-  const [filingTitle, setFilingTitle] = useState('');
 
-  const handleSubmitAppeal = () => {
-    // Handle appeal submission
-    alert('Appeal submitted successfully');
-    setAppealText('');
-    setRejectionReason('');
-    setFilingTitle('');
-  };
+    const filingRejectionTools = [
+        {
+            title: "Writ of Mandamus Generator",
+            description: "Generate a petition to compel a court clerk or government official to perform their legal duty, such as filing your documents.",
+            icon: FileWarning,
+            color: "text-red-600",
+            link: "LegalDraftsman"
+        },
+        {
+            title: "Affidavit of Filing Refusal",
+            description: "Immediately create a sworn statement documenting an improper refusal to file, creating evidence for your petition.",
+            icon: Landmark,
+            color: "text-red-600",
+            link: "LegalDraftsman"
+        },
+        {
+            title: "Clerk Conduct Complaint Assistant",
+            description: "Find the appropriate oversight body and get help structuring a formal complaint against a clerk for dereliction of duty.",
+            icon: MessageSquare,
+            color: "text-red-600",
+            link: "JudicialAccountability"
+        }
+    ];
 
-  return (
-    <div className="p-6 space-y-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-700 to-slate-900 rounded-xl flex items-center justify-center">
-              <Scale className="w-7 h-7 text-white" />
+    const courtroomConditionTools = [
+        {
+            title: "Local Rules of Court Analyzer",
+            description: "AI-powered search of your court's specific local rules to verify if a condition being imposed is lawful and published.",
+            icon: BookOpen,
+            color: "text-blue-600",
+            link: "DigitalInvestigator"
+        },
+        {
+            title: "Motion to Challenge Conditions",
+            description: "Generate a formal motion objecting to unlawful courtroom conditions, citing public access rights and lack of authority.",
+            icon: Shield,
+            color: "text-blue-600",
+            link: "LegalDraftsman"
+        },
+        {
+            title: "Rights Assertion Scripts",
+            description: "Get calm, legally-sound phrases to assert your rights in the moment when confronted with improper demands.",
+            icon: MessageSquare,
+            color: "text-blue-600",
+            link: "KnowYourRights"
+        }
+    ];
+
+    return (
+        <div className="p-6 space-y-8">
+            <div className="max-w-6xl mx-auto">
+                {/* Header */}
+                <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl flex items-center justify-center">
+                            <Scale className="w-7 h-7 text-white" />
+                        </div>
+                        <div>
+                            <h1 className="text-3xl font-bold text-slate-900">Procedural Justice & Court Access Center</h1>
+                            <p className="text-slate-600 mt-1">Tools to combat obstruction and ensure your right to be heard.</p>
+                        </div>
+                    </div>
+                    <Alert className="bg-slate-900 text-white border-slate-700">
+                        <AlertTitle className="font-semibold flex items-center gap-2">The Clerk's Duty is Not a Choice</AlertTitle>
+                        <AlertDescription>
+                            Access to the courts is a fundamental right. Court clerks have a <span className="font-bold text-amber-400">ministerial duty</span> to file documents that conform to the rules; they cannot act as gatekeepers or substitute their judgment for a judge's. These tools are designed to help you enforce that duty.
+                        </AlertDescription>
+                    </Alert>
+                </div>
+
+                {/* Filing Rejection Toolkit */}
+                <Card className="border-0 shadow-lg bg-white">
+                    <CardHeader>
+                        <CardTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                             <FileWarning className="w-6 h-6 text-red-600" />
+                            Toolkit: Overcoming Improper Filing Rejections
+                        </CardTitle>
+                        <p className="text-slate-600 text-sm">Use these tools when a court clerk improperly refuses to accept your legal documents for filing.</p>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {filingRejectionTools.map(tool => (
+                            <Link to={createPageUrl(tool.link)} key={tool.title}>
+                                <div className="p-4 border border-slate-200 rounded-lg h-full flex flex-col hover:shadow-md hover:border-red-300 transition-all">
+                                    <tool.icon className={`w-8 h-8 mb-3 ${tool.color}`} />
+                                    <h3 className="font-semibold text-slate-900 mb-2">{tool.title}</h3>
+                                    <p className="text-sm text-slate-600 flex-grow">{tool.description}</p>
+                                    <Button variant="link" className="p-0 mt-4 text-red-600">
+                                        Use Tool &rarr;
+                                    </Button>
+                                </div>
+                            </Link>
+                        ))}
+                    </CardContent>
+                </Card>
+
+                {/* Courtroom Conditions Toolkit */}
+                <Card className="border-0 shadow-lg bg-white">
+                    <CardHeader>
+                        <CardTitle className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            <Landmark className="w-6 h-6 text-blue-600" />
+                            Toolkit: Challenging Unlawful Courtroom Conditions
+                        </CardTitle>
+                        <p className="text-slate-600 text-sm">Use these tools to respond to arbitrary rules or conditions imposed on your access to the courtroom.</p>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {courtroomConditionTools.map(tool => (
+                             <Link to={createPageUrl(tool.link)} key={tool.title}>
+                                <div className="p-4 border border-slate-200 rounded-lg h-full flex flex-col hover:shadow-md hover:border-blue-300 transition-all">
+                                    <tool.icon className={`w-8 h-8 mb-3 ${tool.color}`} />
+                                    <h3 className="font-semibold text-slate-900 mb-2">{tool.title}</h3>
+                                    <p className="text-sm text-slate-600 flex-grow">{tool.description}</p>
+                                    <Button variant="link" className="p-0 mt-4 text-blue-600">
+                                        Use Tool &rarr;
+                                    </Button>
+                                </div>
+                            </Link>
+                        ))}
+                    </CardContent>
+                </Card>
+
             </div>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900">Court Access Center</h1>
-              <p className="text-slate-600 mt-1">Challenge filing rejections and ensure access to justice.</p>
-            </div>
-          </div>
-          
-          <Alert className="bg-blue-50 border-blue-200">
-            <Shield className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-blue-800">
-              <strong>Your Right to Court Access:</strong> Courts cannot arbitrarily reject filings. If your filing was rejected, you may have grounds to appeal or challenge the decision.
-            </AlertDescription>
-          </Alert>
         </div>
-
-        <Tabs defaultValue="appeal" className="space-y-6">
-          <TabsList className="grid w-full md:w-auto grid-cols-3 bg-white border border-slate-200">
-            <TabsTrigger value="appeal">Appeal Rejection</TabsTrigger>
-            <TabsTrigger value="mandamus">Mandamus Action</TabsTrigger>
-            <TabsTrigger value="resources">Legal Resources</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="appeal" className="space-y-6">
-            <Card className="border-0 shadow-lg bg-white">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5 text-blue-600" />
-                  Appeal Filing Rejection
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Original Filing Title *</label>
-                  <Input
-                    placeholder="Enter the title of your rejected filing"
-                    value={filingTitle}
-                    onChange={(e) => setFilingTitle(e.target.value)}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-2">Type of Filing *</label>
-                  <Select value={filingType} onValueChange={setFilingType}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select filing type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="motion">Motion</SelectItem>
-                      <SelectItem value="complaint">Complaint</SelectItem>
-                      <SelectItem value="petition">Petition</SelectItem>
-                      <SelectItem value="appeal">Appeal</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-2">Reason for Rejection *</label>
-                  <Select value={rejectionReason} onValueChange={setRejectionReason}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select rejection reason given" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="formatting">Formatting Issues</SelectItem>
-                      <SelectItem value="fees">Filing Fee Issues</SelectItem>
-                      <SelectItem value="jurisdiction">Lack of Jurisdiction</SelectItem>
-                      <SelectItem value="frivolous">Deemed Frivolous</SelectItem>
-                      <SelectItem value="procedural">Procedural Defects</SelectItem>
-                      <SelectItem value="other">Other/Unclear</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium mb-2">Appeal Arguments *</label>
-                  <Textarea
-                    placeholder="Explain why the rejection was improper and should be overturned..."
-                    value={appealText}
-                    onChange={(e) => setAppealText(e.target.value)}
-                    rows={8}
-                  />
-                </div>
-                
-                <Button onClick={handleSubmitAppeal} className="w-full">
-                  Generate Appeal Document
-                </Button>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="mandamus" className="space-y-6">
-            <Card className="border-0 shadow-lg bg-white">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-orange-600" />
-                  Mandamus Action
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Alert className="mb-6">
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    <strong>Mandamus:</strong> A legal action to compel a court or government official to perform their duty when they refuse to do so.
-                  </AlertDescription>
-                </Alert>
-                
-                <div className="space-y-4">
-                  <p className="text-slate-600">
-                    If a court is systematically refusing to accept your filings or denying you access to justice, 
-                    you may need to file a writ of mandamus to compel them to perform their judicial duties.
-                  </p>
-                  
-                  <div className="bg-slate-50 p-4 rounded-lg">
-                    <h4 className="font-semibold mb-2">When to Consider Mandamus:</h4>
-                    <ul className="text-sm space-y-1 text-slate-600">
-                      <li>• Court refuses to accept properly formatted filings</li>
-                      <li>• Clerk's office creates unreasonable barriers</li>
-                      <li>• Judge refuses to rule on motions</li>
-                      <li>• Systematic denial of due process rights</li>
-                    </ul>
-                  </div>
-                  
-                  <Button className="w-full" variant="outline">
-                    Generate Mandamus Petition Template
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="resources" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="border-0 shadow-lg bg-white">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
-                    Filing Requirements
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm text-slate-600">
-                    <li>• Proper formatting and structure</li>
-                    <li>• Required signatures and dates</li>
-                    <li>• Appropriate filing fees (or fee waiver)</li>
-                    <li>• Service of process requirements</li>
-                    <li>• Jurisdictional prerequisites</li>
-                  </ul>
-                </CardContent>
-              </Card>
-              
-              <Card className="border-0 shadow-lg bg-white">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Shield className="w-5 h-5 text-blue-600" />
-                    Your Rights
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 text-sm text-slate-600">
-                    <li>• Right to access the courts</li>
-                    <li>• Right to file pro se motions</li>
-                    <li>• Right to appeal rejections</li>
-                    <li>• Right to indigent fee waivers</li>
-                    <li>• Right to due process</li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
-  );
+    );
 }
