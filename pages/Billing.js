@@ -3,246 +3,252 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { User } from "@/entities/User";
-import { createCheckoutSession, createStripePortalSession } from "@/functions/stripe";
+import { createStripePortalSession } from "@/functions/createStripePortalSession";
 import { useToast } from "@/components/ui/use-toast";
-import { CreditCard, Check, Zap, Crown, Shield } from 'lucide-react';
-
-const plans = [
-  {
-    id: 'free',
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    icon: Shield,
-    features: [
-      '5 AI operations per month',
-      'Basic document analysis',
-      'Know Your Rights library',
-      'Incident reporting'
-    ],
-    limitations: [
-      'Limited AI usage',
-      'No premium features'
-    ]
-  },
-  {
-    id: 'basic',
-    name: 'Basic',
-    price: '$29',
-    period: 'month',
-    icon: Zap,
-    popular: true,
-    features: [
-      '100 AI operations per month',
-      'Full document analysis suite',
-      'AI case strategist',
-      'Legal document generator',
-      'Priority support'
-    ],
-    priceId: 'price_basic_monthly'
-  },
-  {
-    id: 'premium',
-    name: 'Premium', 
-    price: '$79',
-    period: 'month',
-    icon: Crown,
-    features: [
-      'Unlimited AI operations',
-      'All platform features',
-      'Courtroom simulator',
-      'Advanced investigations',
-      'Priority support',
-      '1-on-1 legal consultations'
-    ],
-    priceId: 'price_premium_monthly'
-  }
-];
+import { ExternalLink, Loader2, CreditCard, CheckCircle } from "lucide-react";
+import { useLocation } from 'react-router-dom';
 
 export default function Billing() {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [portalLoading, setPortalLoading] = useState(false);
+    const { toast } = useToast();
+    const location = useLocation();
 
-  useEffect(() => {
-    loadUserData();
-  }, []);
+    useEffect(() => {
+        // Load Stripe pricing table script
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://js.stripe.com/v3/pricing-table.js';
+        document.head.appendChild(script);
 
-  const loadUserData = async () => {
-    try {
-      const userData = await User.me();
-      setUser(userData);
-    } catch (error) {
-      console.error("Error loading user data:", error);
-    }
-  };
-
-  const handleSubscribe = async (priceId) => {
-    setIsLoading(true);
-    try {
-      const { data } = await createCheckoutSession({ price_id: priceId });
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error("Error creating checkout session:", error);
-      toast({
-        title: "Subscription Error",
-        description: "Unable to start subscription process. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleManageBilling = async () => {
-    setIsLoading(true);
-    try {
-      const { data } = await createStripePortalSession();
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error("Error creating portal session:", error);
-      toast({
-        title: "Billing Portal Error",
-        description: "Unable to access billing portal. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <div className="p-6 space-y-8">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-900 mb-2">Billing & Subscription</h1>
-          <p className="text-slate-600">Choose the plan that fits your legal defense needs</p>
-        </div>
-
-        {/* Current Plan Status */}
-        {user && (
-          <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50 to-indigo-50 mb-8">
-            <CardContent className="p-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-900">Current Plan</h3>
-                  <p className="text-slate-600 capitalize">
-                    {user.subscription_tier} Plan
-                    {user.subscription_tier !== 'free' && (
-                      <span className="ml-2">
-                        • {user.ai_usage_count || 0} AI operations used this month
-                      </span>
-                    )}
-                  </p>
-                </div>
-                {user.subscription_tier !== 'free' && (
-                  <Button onClick={handleManageBilling} disabled={isLoading}>
-                    <CreditCard className="w-4 h-4 mr-2" />
-                    Manage Billing
-                  </Button>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Pricing Plans */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {plans.map((plan) => (
-            <Card key={plan.id} className={`border-0 shadow-lg relative ${
-              plan.popular ? 'ring-2 ring-blue-500 ring-offset-2' : ''
-            }`}>
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-blue-600 text-white">Most Popular</Badge>
-                </div>
-              )}
-              
-              <CardHeader className="text-center pb-4">
-                <div className="mx-auto mb-4">
-                  <plan.icon className="w-12 h-12 text-blue-600" />
-                </div>
-                <CardTitle className="text-2xl">{plan.name}</CardTitle>
-                <div className="text-3xl font-bold text-slate-900">
-                  {plan.price}
-                  <span className="text-lg font-normal text-slate-600">/{plan.period}</span>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="space-y-6">
-                <ul className="space-y-3">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+        const fetchUser = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const userData = await User.me();
+                setUser(userData);
                 
-                {plan.limitations && (
-                  <div className="pt-4 border-t border-slate-200">
-                    <p className="text-xs text-slate-500 mb-2">Limitations:</p>
-                    <ul className="space-y-1">
-                      {plan.limitations.map((limitation, index) => (
-                        <li key={index} className="text-xs text-slate-500">
-                          • {limitation}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                
-                <Button 
-                  className={`w-full ${
-                    plan.id === 'free' 
-                      ? 'bg-slate-600 hover:bg-slate-700'
-                      : plan.popular 
-                      ? 'bg-blue-600 hover:bg-blue-700'
-                      : 'bg-slate-800 hover:bg-slate-900'
-                  }`}
-                  onClick={() => plan.priceId ? handleSubscribe(plan.priceId) : null}
-                  disabled={isLoading || plan.id === 'free' || user?.subscription_tier === plan.id}
-                >
-                  {user?.subscription_tier === plan.id 
-                    ? 'Current Plan' 
-                    : plan.id === 'free' 
-                    ? 'Free Forever' 
-                    : `Subscribe to ${plan.name}`
-                  }
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                // Check for success message from Stripe
+                const query = new URLSearchParams(location.search);
+                if (query.get("session_id")) {
+                    toast({
+                        title: "Subscription Successful!",
+                        description: "Your plan has been updated. Welcome aboard!",
+                    });
+                }
+            } catch (error) {
+                console.error("Failed to load user:", error);
+                setError("Failed to load user data. Please refresh the page.");
+                toast({
+                    title: "Error Loading User Data",
+                    description: "Please refresh the page or try again later.",
+                    variant: "destructive"
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchUser();
 
-        {/* FAQ Section */}
-        <Card className="border-0 shadow-lg bg-white mt-12">
-          <CardHeader>
-            <CardTitle>Frequently Asked Questions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-2">What are AI operations?</h4>
-              <p className="text-slate-600 text-sm">AI operations include document analysis, case strategy generation, legal drafting, and other AI-powered features. Each request counts as one operation.</p>
-            </div>
+        // Cleanup script on unmount
+        return () => {
+            const existingScript = document.querySelector('script[src="https://js.stripe.com/v3/pricing-table.js"]');
+            if (existingScript) {
+                document.head.removeChild(existingScript);
+            }
+        };
+    }, [location.search, toast]);
+
+    const handleManageSubscription = async () => {
+        if (!user) {
+            toast({
+                title: "Error",
+                description: "User data not loaded. Please refresh the page.",
+                variant: "destructive"
+            });
+            return;
+        }
+
+        setPortalLoading(true);
+        try {
+            const response = await createStripePortalSession();
             
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-2">Can I cancel anytime?</h4>
-              <p className="text-slate-600 text-sm">Yes, you can cancel your subscription at any time. You'll continue to have access to premium features until the end of your billing period.</p>
+            if (response && response.data && response.data.url) {
+                window.location.href = response.data.url;
+            } else {
+                throw new Error("No portal URL received from server");
+            }
+        } catch (error) {
+            console.error("Portal session error:", error);
+            toast({
+                title: "Error",
+                description: "Could not open subscription management. Please try again.",
+                variant: "destructive",
+            });
+        } finally {
+            setPortalLoading(false);
+        }
+    };
+
+    // Loading state
+    if (loading) {
+        return (
+            <div className="p-6">
+                <div className="max-w-5xl mx-auto">
+                    <div className="text-center py-12">
+                        <Loader2 className="w-8 h-8 animate-spin text-slate-500 mx-auto mb-4" />
+                        <p className="text-slate-600">Loading billing information...</p>
+                    </div>
+                </div>
             </div>
-            
-            <div>
-              <h4 className="font-semibold text-slate-900 mb-2">Is my legal information secure?</h4>
-              <p className="text-slate-600 text-sm">Absolutely. We use enterprise-grade encryption and security measures to protect your sensitive legal information. We never share your data with third parties.</p>
+        );
+    }
+
+    // Error state
+    if (error) {
+        return (
+            <div className="p-6">
+                <div className="max-w-5xl mx-auto">
+                    <div className="text-center py-12">
+                        <h1 className="text-2xl font-bold text-slate-900 mb-4">Unable to Load Billing</h1>
+                        <p className="text-slate-600 mb-6">{error}</p>
+                        <Button onClick={() => window.location.reload()}>
+                            Refresh Page
+                        </Button>
+                    </div>
+                </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="p-6">
+                <div className="max-w-5xl mx-auto">
+                    <div className="text-center py-12">
+                        <h1 className="text-2xl font-bold text-slate-900 mb-4">Please Log In</h1>
+                        <p className="text-slate-600 mb-6">You need to be logged in to view billing information.</p>
+                        <Button onClick={() => window.location.reload()}>
+                            Refresh Page
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+    
+    const currentTier = user.subscription_tier || 'free';
+    const hasActiveSubscription = user.stripe_customer_id && currentTier !== 'free';
+
+    return (
+        <div className="p-6 space-y-8">
+            <div className="max-w-5xl mx-auto">
+                {/* Header */}
+                <div className="mb-8 text-center">
+                    <div className="flex items-center justify-center gap-3 mb-4">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                            <CreditCard className="w-7 h-7 text-white" />
+                        </div>
+                        <h1 className="text-4xl font-bold text-slate-900">Subscription & Billing</h1>
+                    </div>
+                    <p className="text-slate-600 max-w-2xl mx-auto">
+                        Choose the right plan to unlock powerful AI legal tools and defend your rights effectively.
+                    </p>
+                </div>
+
+                {/* Current Plan Status */}
+                <Card className="mb-8 border-0 shadow-lg bg-white">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <CheckCircle className="w-5 h-5 text-green-600" />
+                            Current Plan Status
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <Badge variant="outline" className="mb-2">
+                                    Current Plan: {currentTier.charAt(0).toUpperCase() + currentTier.slice(1)}
+                                </Badge>
+                                <p className="text-sm text-slate-600">
+                                    {currentTier === 'free' 
+                                        ? 'You are currently on the free plan with 5 AI operations per month.'
+                                        : 'You have an active subscription with full access to AI features.'
+                                    }
+                                </p>
+                            </div>
+                            {hasActiveSubscription && (
+                                <Button 
+                                    onClick={handleManageSubscription} 
+                                    variant="outline"
+                                    disabled={portalLoading}
+                                >
+                                    {portalLoading ? (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <ExternalLink className="mr-2 h-4 w-4" />
+                                    )}
+                                    Manage Subscription
+                                </Button>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Stripe Pricing Table */}
+                <div className="bg-white rounded-xl shadow-lg p-6">
+                    <h2 className="text-2xl font-bold text-slate-900 text-center mb-6">
+                        Available Plans
+                    </h2>
+                    <div 
+                        dangerouslySetInnerHTML={{
+                            __html: `
+                                <stripe-pricing-table 
+                                    pricing-table-id="prctbl_1RiCDDGKH727ZIVgR6aniFBx"
+                                    publishable-key="pk_live_51RNRwLGKH727ZIVgXABk6h7uFr2Qde0YyCYk4t2KmdZCcGztBMqqWqhsig6a9lhfchnkOU0yqe7PgMO9PvIdMjfL005raRDVA5"
+                                    customer-email="${user.email || ''}"
+                                    client-reference-id="${user.id || ''}"
+                                ></stripe-pricing-table>
+                            `
+                        }}
+                    />
+                </div>
+
+                {/* Benefits Section */}
+                <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50 to-purple-50">
+                    <CardContent className="p-6">
+                        <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">
+                            Why Upgrade to Premium AI Features?
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div className="text-center">
+                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <CheckCircle className="w-5 h-5 text-blue-600" />
+                                </div>
+                                <h4 className="font-semibold text-slate-900 mb-1">AI Document Analysis</h4>
+                                <p className="text-slate-600">Instantly identify legal issues, inconsistencies, and violations in any document.</p>
+                            </div>
+                            <div className="text-center">
+                                <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <CheckCircle className="w-5 h-5 text-purple-600" />
+                                </div>
+                                <h4 className="font-semibold text-slate-900 mb-1">Legal Document Generation</h4>
+                                <p className="text-slate-600">Generate court-ready motions, complaints, and legal correspondence with AI assistance.</p>
+                            </div>
+                            <div className="text-center">
+                                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                                    <CheckCircle className="w-5 h-5 text-green-600" />
+                                </div>
+                                <h4 className="font-semibold text-slate-900 mb-1">Strategic Case Analysis</h4>
+                                <p className="text-slate-600">Get AI-powered insights on case strengths, risks, and recommended next steps.</p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    );
 }
