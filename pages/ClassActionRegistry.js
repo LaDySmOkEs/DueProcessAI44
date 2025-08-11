@@ -70,10 +70,10 @@ export default function ClassActionRegistry() {
                             <p className="text-slate-600 mt-1">Identifying systemic violations to build collective legal action.</p>
                         </div>
                     </div>
-                     <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <h2 className="font-semibold text-red-900 mb-2">Power in Numbers</h2>
-                        <p className="text-red-800 text-sm leading-relaxed">
-                          By submitting your experience, you help our AI identify widespread patterns of misconduct. Your individual story, when combined with others, can become the foundation for a landmark class-action lawsuit that forces systemic change.
+                     <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <h2 className="font-semibold text-green-900 mb-2">🆓 Always Free</h2>
+                        <p className="text-green-800 text-sm leading-relaxed">
+                          This registry is completely free to access and contribute to. Help build a database of constitutional violations to enable class-action lawsuits.
                         </p>
                     </div>
                 </div>
