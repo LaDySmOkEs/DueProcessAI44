@@ -1,0 +1,41 @@
+{
+  "name": "PoliceInteraction",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the interaction"
+    },
+    "time": {
+      "type": "string",
+      "description": "Time of the interaction"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location where interaction occurred"
+    },
+    "agency": {
+      "type": "string",
+      "description": "Law enforcement agency involved"
+    },
+    "officer_name": {
+      "type": "string",
+      "description": "Officer name if known"
+    },
+    "badge_number": {
+      "type": "string",
+      "description": "Officer badge number if visible"
+    },
+    "encounter_type": {
+      "type": "string",
+      "enum": [
+        "traffic_stop",
+        "pedestrian_stop",
+        "home_visit",
+        "arrest",
+        "questioning",
+        "other"
+      ],
+      "description": "Type of police encounter"
+   
